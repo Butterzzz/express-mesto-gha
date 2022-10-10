@@ -8,6 +8,13 @@ const usersRouter = require('./routes/users');
 mongoose.connect('mongodb://localhost:27017/mestodb');
 
 app.use(express.json());
+app.use((req, res, next) => {
+  req.user = {
+    _id: '634461887b0cab5ee02a6c1f',
+  };
+
+  next();
+});
 app.use('/', usersRouter);
 
 app.listen(PORT, () => {
