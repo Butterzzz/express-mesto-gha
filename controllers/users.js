@@ -43,7 +43,7 @@ module.exports.updateUser = (req, res) => {
   const { name, about } = req.body;
   const userId = req.user._id;
 
-  User.findByIdAndUpdate(userId, { name, about }, { new: true })
+  User.findByIdAndUpdate(userId, { name, about }, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
         res.status(404).send({ message: 'Пользователь с указанным _id не найден.' });
@@ -53,9 +53,10 @@ module.exports.updateUser = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError' || err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля.' });
+        res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля.' });
+        return;
       }
-      return res.status(500).send({ message: 'На сервере произошла ошибка.' });
+      res.status(500).send({ message: 'На сервере произошла ошибка.' });
     });
 };
 
@@ -63,7 +64,7 @@ module.exports.updateAvatar = (req, res) => {
   const { avatar } = req.body;
   const userId = req.user._id;
 
-  User.findByIdAndUpdate(userId, { avatar }, { new: true })
+  User.findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
         res.status(404).send({ message: 'Пользователь с указанным _id не найден.' });
@@ -73,8 +74,9 @@ module.exports.updateAvatar = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError' || err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные при обновлении аватара.' });
+        res.status(400).send({ message: 'Переданы некорректные данные при обновлении аватара.' });
+        return;
       }
-      return res.status(500).send({ message: 'На сервере произошла ошибка.' });
+      res.status(500).send({ message: 'На сервере произошла ошибка.' });
     });
 };

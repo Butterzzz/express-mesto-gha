@@ -30,7 +30,13 @@ module.exports.deleteCard = (req, res) => {
       }
       res.status(200).send(card);
     })
-    .catch(() => res.status(500).send({ message: 'На сервере произошла ошибка.' }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(400).send({ message: 'Переданы некорректные данные' });
+        return;
+      }
+      res.status(500).send({ message: 'На сервере произошла ошибка.' });
+    });
 };
 
 module.exports.likeCard = (req, res) => {
@@ -44,9 +50,10 @@ module.exports.likeCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные для постановки лайка.' });
+        res.status(400).send({ message: 'Переданы некорректные данные для постановки лайка.' });
+        return;
       }
-      return res.status(500).send({ message: 'На сервере произошла ошибка.' });
+      res.status(500).send({ message: 'На сервере произошла ошибка.' });
     });
 };
 
@@ -61,8 +68,9 @@ module.exports.dislikeCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные для снятии лайка.' });
+        res.status(400).send({ message: 'Переданы некорректные данные для снятии лайка.' });
+        return;
       }
-      return res.status(500).send({ message: 'На сервере произошла ошибка.' });
+      res.status(500).send({ message: 'На сервере произошла ошибка.' });
     });
 };
