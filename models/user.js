@@ -30,6 +30,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       minlength: 8,
+      select: false, // хеш пароля пользователя не будет возвращаться из базы
     },
   },
   {
@@ -39,7 +40,7 @@ const userSchema = new mongoose.Schema(
 
 // eslint-disable-next-line func-names
 userSchema.statics.findUserByCredentials = function (email, password) {
-  return this.findOne({ email })
+  return this.findOne({ email }).select('+password') // в случае аутентификации хеш пароля нужен
     .then((user) => {
       if (!user) {
         return Promise.reject(new Error('Неправильные почта или пароль'));
