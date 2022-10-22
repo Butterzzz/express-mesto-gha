@@ -20,13 +20,7 @@ const limiter = rateLimit({
 });
 
 app.use(express.json());
-app.use((req, res, next) => {
-  req.user = {
-    _id: '6345d800a52e0c7f4c04df13',
-  };
 
-  next();
-});
 // для защиты приложения от веб-уязвимостей путем соответствующей настройки заголовков HTTP
 app.use(helmet());
 app.use(limiter);
