@@ -9,6 +9,18 @@ module.exports.getUsers = (req, res) => {
     .catch(() => res.status(SERVER_ERROR).send({ message: 'На сервере произошла ошибка.' }));
 };
 
+module.exports.getCurrentUsers = (req, res) => {
+  User.findById(req.user._id)
+    .then((users) => res.send(users))
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
+        return;
+      }
+      res.status(SERVER_ERROR).send({ message: 'На сервере произошла ошибка.' });
+    });
+};
+
 module.exports.getUserById = (req, res) => {
   const { userId } = req.params;
   User.findById(userId)
