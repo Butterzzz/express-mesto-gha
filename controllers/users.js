@@ -2,7 +2,6 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const BadRequestError = require('../errors/bad-request-err'); // 400
-const UnauthorizedError = require('../errors/unauthorized-err'); // 401
 const NotFoundError = require('../errors/not-found-err'); // 404
 const ConflictError = require('../errors/conflict-err'); // 409
 
@@ -36,9 +35,9 @@ module.exports.getUserById = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new BadRequestError('Переданы некорректные данные'));
+        return next(new BadRequestError('Переданы некорректные данные'));
       }
-      next(err);
+      return next(err);
     });
 };
 
@@ -46,10 +45,6 @@ module.exports.createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
-
-  if (!password || !email) {
-    throw new BadRequestError('Поля email и пароль должны быть заполнены');
-  }
 
   bcrypt.hash(password, 10)
     .then((hash) => User.create({
@@ -64,11 +59,11 @@ module.exports.createUser = (req, res, next) => {
     }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
-      } else if (err.code === 11000) {
-        next(new ConflictError('Пользователь с таким email уже существует'));
+        return next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
+      } if (err.code === 11000) {
+        return next(new ConflictError('Пользователь с таким email уже существует'));
       }
-      next(err);
+      return next(err);
     });
 };
 
@@ -85,9 +80,9 @@ module.exports.updateUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError' || err.name === 'ValidationError') {
-        next(new BadRequestError('Переданы некорректные данные при обновлении профиля'));
+        return next(new BadRequestError('Переданы некорректные данные при обновлении профиля'));
       }
-      next(err);
+      return next(err);
     });
 };
 
@@ -104,9 +99,9 @@ module.exports.updateAvatar = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError' || err.name === 'ValidationError') {
-        next(new BadRequestError('Переданы некорректные данные при обновлении аватара'));
+        return next(new BadRequestError('Переданы некорректные данные при обновлении аватара'));
       }
-      next(err);
+      return next(err);
     });
 };
 
@@ -118,8 +113,5 @@ module.exports.login = (req, res, next) => {
       const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' }); // токен действительный 7 дней
       res.send({ token });
     })
-    .catch((err) => {
-      next(new UnauthorizedError(err.message));
-      next(err);
-    });
+    .catch(next);
 };
